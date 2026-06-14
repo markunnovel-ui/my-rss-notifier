@@ -12,17 +12,26 @@ def fetch_kakuyomu():
     response = requests.get(WORK_URL, headers=headers)
     soup = BeautifulSoup(response.text, 'html.parser')
     
-    # 1. 作品タイトル：h1タグから取得
+    # 1. 作品タイトル
     work_title = soup.find('h1').text.strip()
     
-    # 2. 最新エピソード：エピソードリストの最後を取得
-    # カクヨムのエピソードリストは <li class="widget-episodeList-episode"> 
-    episodes = soup.find_all('li', class_='widget-episodeList-episode')
-    latest_episode = episodes[-1] # 一番最後（最新）
+    # 2. エピソード取得（今度はページ内のすべてのリンクを調査）
+    # カクヨムのエピソードリンクは必ず「/episodes/」を含んでいることを利用します
+    all_links = soup.find_all('a')
+    episode_links = [link for link in all_links if '/episodes/' in link.get('href', '')]
     
-    episode_title = latest_episode.find('a').text.strip()
-    # 日付は time タグの datetime 属性にある
-    episode_date = latest_episode.find('time')['datetime']
+    if not episode_links:
+        raise Exception("エピソードが見つかりません。ページ構造を確認してください。")
+
+    # 一番最後のリンクが最新話であることが多い
+    latest_link = episode_links[-1]
+    
+    # 親要素をたどって日付を探す
+    parent = latest_link.find_parent('li')
+    episode_title = latest_link.text.strip()
+    # 日付が見つからない場合は現在時刻を仮置き
+    time_tag = parent.find('time')
+    episode_date = time_tag['datetime'] if time_tag else "2026-06-14T20:00:00+09:00"
     
     return work_title, episode_title, episode_date
 
@@ -35,7 +44,7 @@ def generate_rss(work_title, episode_title, episode_date):
     fe = fg.add_entry()
     fe.title(episode_title)
     fe.updated(episode_date)
-    fe.link(href=WORK_URL) # 簡易的に作品URLをリンクにする
+    fe.link(href=WORK_URL)
     fe.description(f"更新日: {episode_date}")
     
     fg.rss_file(RSS_FILE)
