@@ -1,13 +1,17 @@
 name: Check Kakuyomu Update
+
 on:
   schedule:
-    # 19:55, 20:00, 20:05 に毎日実行 (UTCだとJST-9時間)
     - cron: '55 10 * * *'
     - cron: '00 11 * * *'
     - cron: '05 11 * * *'
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
