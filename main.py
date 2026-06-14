@@ -15,23 +15,26 @@ def fetch_kakuyomu():
     # 1. 作品タイトル
     work_title = soup.find('h1').text.strip()
     
-    # 2. エピソード取得（今度はページ内のすべてのリンクを調査）
-    # カクヨムのエピソードリンクは必ず「/episodes/」を含んでいることを利用します
+    # 2. エピソードリンクの抽出
     all_links = soup.find_all('a')
     episode_links = [link for link in all_links if '/episodes/' in link.get('href', '')]
     
     if not episode_links:
-        raise Exception("エピソードが見つかりません。ページ構造を確認してください。")
+        raise Exception("エピソードリンクが見つかりません")
 
-    # 一番最後のリンクが最新話であることが多い
+    # 最新話のリンク
     latest_link = episode_links[-1]
     
-    # 親要素をたどって日付を探す
-    parent = latest_link.find_parent('li')
+    # 3. 日付を探す（リンクと同じ親ブロック（divやliなど）から遡って探す）
+    # リンク要素の親から遡って time を探す
+    time_tag = latest_link.find_parent().find('time')
+    
+    # それでも見つからない場合、念のためページ全体から探す
+    if not time_tag:
+        time_tag = soup.find('time')
+        
     episode_title = latest_link.text.strip()
-    # 日付が見つからない場合は現在時刻を仮置き
-    time_tag = parent.find('time')
-    episode_date = time_tag['datetime'] if time_tag else "2026-06-14T20:00:00+09:00"
+    episode_date = time_tag['datetime'] if time_tag and time_tag.has_attr('datetime') else "2026-06-14T20:00:00+09:00"
     
     return work_title, episode_title, episode_date
 
