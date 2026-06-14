@@ -19,11 +19,14 @@ jobs:
         with:
           python-version: '3.9'
       - name: Install dependencies
-        run: pip install beautifulsoup4 requests feedgen
+        run: |
+          pip install --upgrade pip
+          pip install beautifulsoup4 requests feedgen
       - name: Run script
         run: python main.py
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
+      - name: Commit and push rss.xml
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add rss.xml
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update rss.xml" && git push)
