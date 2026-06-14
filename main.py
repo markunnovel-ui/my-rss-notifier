@@ -14,19 +14,21 @@ def fetch_kakuyomu():
     response.raise_for_status() 
     soup = BeautifulSoup(response.text, 'html.parser')
     
-    # ページタイトル（作品名）を取得
-    # カクヨムのタイトルは <h1 id="workTitle"> 内にあります
+    # 1. 作品タイトルを検索（id="workTitle" が確実）
     work_title_el = soup.find('h1', id='workTitle')
-    # 最新エピソードのリストを取得
-    episode_list = soup.find('div', class_='widget-episodeList')
-    latest_episode = episode_list.find('li', class_='widget-episodeList-episode')
-    
-    if not work_title_el or not latest_episode:
-        raise Exception("カクヨムのHTML構造を特定できませんでした。URLを確認してください。")
-
+    if not work_title_el:
+        raise Exception("作品タイトルが見つかりません")
     work_title = work_title_el.text.strip()
     
-    # エピソードタイトルと日付
+    # 2. 「最新エピソード」のリンクを直接検索
+    # カクヨムの最新話は「js-episode-list」クラス内の最初にあることが多い
+    episode_list = soup.find('ol', class_='js-episode-list')
+    latest_episode = episode_list.find_all('li', class_='widget-episodeList-episode')[-1]
+    
+    if not latest_episode:
+        raise Exception("最新エピソードが見つかりません")
+
+    # タイトル（リンク内のテキスト）と日付を取得
     episode_title = latest_episode.find('a').text.strip()
     episode_date = latest_episode.find('time').get('datetime')
     
