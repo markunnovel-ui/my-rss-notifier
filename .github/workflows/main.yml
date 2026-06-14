@@ -1,1 +1,25 @@
-
+name: Check Kakuyomu Update
+on:
+  schedule:
+    # 19:55, 20:00, 20:05 に毎日実行 (UTCだとJST-9時間)
+    - cron: '55 10 * * *'
+    - cron: '00 11 * * *'
+    - cron: '05 11 * * *'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: pip install beautifulsoup4 requests feedgen
+      - name: Run script
+        run: python main.py
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
