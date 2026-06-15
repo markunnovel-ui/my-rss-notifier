@@ -2,9 +2,9 @@ name: Check Kakuyomu Update
 
 on:
   schedule:
+    - cron: '55 10 * * *' # 日本時間 19:55
     - cron: '00 11 * * *' # 日本時間 20:00
-    - cron: '15 11 * * *' # 日本時間 20:15
-    - cron: '30 11 * * *' # 日本時間 20:30
+    - cron: '05 11 * * *' # 日本時間 20:05
   workflow_dispatch:
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
-      - uses: actions/setup-python@v5
+        uses: actions/setup-python@v5
         with:
           python-version: '3.9'
       - name: Install dependencies
