@@ -2,9 +2,9 @@ name: Check Kakuyomu Update
 
 on:
   schedule:
-    - cron: '55 10 * * *'
-    - cron: '00 11 * * *'
-    - cron: '05 11 * * *'
+    - cron: '00 11 * * *' # 日本時間 20:00
+    - cron: '15 11 * * *' # 日本時間 20:15
+    - cron: '30 11 * * *' # 日本時間 20:30
   workflow_dispatch:
 
 jobs:
