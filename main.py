@@ -46,6 +46,7 @@ def generate_rss(work_title, episode_title, episode_date):
     
     fe = fg.add_entry()
     fe.title(episode_title)
+    fe.published(episode_date) # これを追加（または変更）
     fe.updated(episode_date)
     fe.link(href=WORK_URL)
     fe.description(f"更新日: {episode_date}")
